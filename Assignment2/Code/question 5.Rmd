@@ -1,0 +1,98 @@
+---
+title: "PBSR Assignment 2"
+author: "Shubhashish"
+date: "Question 5"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+
++ Consider the following model:
+
+$$
+r_{t}^{TCS}=\alpha + \beta r_{t}^{Nifty} + \varepsilon,
+$$
+where $\mathbb{E}(\varepsilon)=0$ and $\mathbb{V}ar(\varepsilon)=\sigma^2$.
+
+1. Estimate the parameters of the models $\theta=(\alpha,\beta,\sigma)$ using the method of moments type plug-in estimator discussed in the class.
+
+
+Let $x_i = r_t^{Nifty}$ and   $y_i = r_t^{TCS}$
+
+Then we are given $y_i = \alpha + \beta x_i + \epsilon$
+
+where $\mathop{\mathbb{E}}(\epsilon) = 0$ and $Var(\epsilon)=\sigma^2$
+
+$\mathop{\mathbb{E}}[\epsilon] = 0 \implies \mathop{\mathbb{E}}[y_i] = \alpha + \beta \mathop{\mathbb{E}}[x_i]$
+
+$Var[\epsilon] = \sigma^2$ and independence of $x_i$ and $\epsilon$ $\implies Var(y_i) = \beta^2 Var(x_i) + \sigma^2$
+
+$x_i$ and $\epsilon$ are independent and $E[\epsilon] = 0 \implies$ $\mathop{\mathbb{E}}[\epsilon x_i] =0 \implies \mathop{\mathbb{E}}[x_iy_i] = \alpha \mathop{\mathbb{E}}[x_i] + \beta \mathop{\mathbb{E}}[x_i^2]$
+
+now we can estimate $\mathop{\mathbb{E}}[x_i]$, $\mathop{\mathbb{E}}[y_i]$, $Var(x_i)$ and $Var(y_i)$ from the sample,
+
+using $\mathop{\mathbb{E}}[x_iy_i] = Cov(x_i,y_i) + \mathop{\mathbb{E}}[x_i]\mathop{\mathbb{E}}[y_i]$ and $E[x_i^2] = Var(x_i) + E[x_i]^2$ and estimating $Cov(x_i,y_i)$ from the sample, we solve 3 equation in 3 variables to get the estimates for $\alpha$, $\beta$ and $\sigma$
+
+solving these 3 equation gives $\alpha = \mathop{\mathbb{E}}[y_i]-\mathop{\mathbb{E}}[x_i]\beta$, $\beta = \frac{Cov(x_i,y_i)}{Var(x_i)}$ and $\sigma = \sqrt{Var(y_i)-Cov(x_i,y_i)\beta}$
+
+
+
+
+
+```{r warnings=FALSE}
+
+library(quantmod)
+
+getSymbols('TCS.NS')
+
+getSymbols('^NSEI')
+
+TCS_rt = diff(log(TCS.NS$TCS.NS.Adjusted))
+Nifty_rt = diff(log(NSEI$NSEI.Adjusted))
+retrn = cbind.xts(TCS_rt,Nifty_rt)
+retrn = na.omit(data.frame(retrn))
+
+beta = cov(retrn$NSEI.Adjusted,retrn$TCS.NS.Adjusted)/var(retrn$NSEI.Adjusted)
+
+alpha = mean(retrn$TCS.NS.Adjusted) - mean(retrn$NSEI.Adjusted)*beta
+
+sigma = sqrt(var(retrn$TCS.NS.Adjusted) - cov(retrn$NSEI.Adjusted,retrn$TCS.NS.Adjusted)*beta)
+
+
+
+
+
+```
+
+
+$\alpha = `r alpha`$
+$\beta = `r beta`$
+$\sigma = `r sigma`$
+
+2. Estimate the parameters using the `lm` built-in function of `R`. Note that `lm` using the OLS method.
+
+```{r}
+linear_model = lm(TCS.NS.Adjusted ~ NSEI.Adjusted, data=retrn)
+summary(linear_model)
+```
+$\alpha = 0.0004558$
+$\beta  = 0.7432052$
+$\sigma = 0.01619$
+
+3. Fill-up the following table
+
+Parameters | Method of Moments | OLS
+-----------|-------------------|-----
+$\alpha$   |  0.00045579502    | 0.0004558
+$\beta$    |    0.7432057      | 0.7432052
+$\sigma$   |    0.0161853      | 0.01619
+
+
+
+4. If the current value of Nifty is 18000 and it goes up to 18200. The current value of TCS is Rs. 3200/-. How much you can expect TCS price to go up?
+
+We can expect TCS price to go up to $3200 + \beta*200$ = Rs. 3348.64104/- up by Rs. 148.64104
+
