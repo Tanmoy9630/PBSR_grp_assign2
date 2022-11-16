@@ -24,7 +24,10 @@ theta_initial=c(-3,0.11,1)
 
 fit=optim(theta_initial,Negloglike,data=data)
 fit
-BIC=ln(n)*(length(fit$par))-2*ln(fit$value)
+BIC=ln(n)*(length(fit$par))+2*fit$value
 
 plot(log(Claims)~log(Holders))
 abline(a=fit$par[1],b=fit$par[2],col="red")
+
+#BIC value is:
+BIC 
