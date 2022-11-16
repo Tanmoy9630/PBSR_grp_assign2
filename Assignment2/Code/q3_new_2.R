@@ -136,11 +136,11 @@ l3=ll3(waiting,theta_hat3)*-1
 l3
 ### for aic fitting ###########
 
-### aic= (2*number_of_parameter)-loglikelihhod_function(theta_hat,data)
-
-aic1=2*5-l1
-aic2=2*5-l2
-aic3=2*5-l3
+### aic= (2*number_of_parameter)-2*loglikelihhod_function(theta_hat,data)
+## since here no. of parameters =5 for every model
+aic1=2*5-2*l1
+aic2=2*5-2*l2
+aic3=2*5-2*l3
 aic1
 aic2
 aic3
